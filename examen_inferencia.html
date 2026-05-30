@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Primer Parcial – Inferencia Estadística</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1610;
+    --paper: #f5f0e8;
+    --parchment: #ede8dc;
+    --accent: #8b3a1a;
+    --accent-light: #c4622d;
+    --rule: #c8b99a;
+    --muted: #6b6050;
+    --success: #2d6a4f;
+    --card-bg: #faf7f2;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', Arial, sans-serif;
+    background-color: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 31px,
+        rgba(200,185,154,0.18) 31px,
+        rgba(200,185,154,0.18) 32px
+      );
+  }
+
+  .masthead {
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--rule);
+    position: relative;
+  }
+
+  .masthead::before {
+    content: '❧';
+    display: block;
+    font-size: 1.4rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    opacity: 0.7;
+  }
+
+  .masthead h1 {
+    font-family: 'Syne', Arial, sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+
+  .masthead .subtitle {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    font-style: italic;
+    letter-spacing: 0.03em;
+  }
+
+  .ornament {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: center;
+    margin: 1.2rem 0 0;
+    color: var(--rule);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .ornament::before, .ornament::after {
+    content: '';
+    flex: 1;
+    max-width: 80px;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* ── START PANEL ── */
+  #start-panel {
+    max-width: 560px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 2.5rem 2rem;
+    background: var(--card-bg);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    box-shadow: 0 4px 24px rgba(26,22,16,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #start-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light), var(--accent));
+  }
+
+  .start-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.85;
+  }
+
+  #start-panel p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    font-style: italic;
+  }
+
+  .btn-sortear {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Syne', Arial, sans-serif;
+    letter-spacing: 0.04em;
+    padding: 0.85rem 2.5rem;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.12s, box-shadow 0.2s;
+    box-shadow: 0 3px 12px rgba(139,58,26,0.3);
+    text-transform: uppercase;
+  }
+  .btn-sortear:hover {
+    background: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(139,58,26,0.35);
+  }
+  .btn-sortear:active {
+    transform: translateY(0);
+  }
+  .btn-sortear:disabled {
+    background: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ── EXAM PANEL ── */
+  #exam-panel {
+    display: none;
+    max-width: 760px;
+    margin: 0 auto;
+    animation: fadeUp 0.55s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .badge-sorteo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    font-family: 'DM Sans', Arial, sans-serif;
+    background: var(--accent);
+    color: #fff;
+    padding: 0.15rem 0.55rem;
+    border-radius: 2px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .ejercicio-card {
+    background: var(--card-bg);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 1.8rem;
+    box-shadow: 0 2px 12px rgba(26,22,16,0.06), inset 0 1px 0 rgba(255,255,255,0.7);
+    position: relative;
+  }
+
+  .ejercicio-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-light));
+    border-radius: 2px 0 0 2px;
+  }
+
+  .card-label {
+    display: inline-block;
+    font-family: 'Syne', Arial, sans-serif;
+    padding: 0.15rem 0.6rem;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+
+  .card-title {
+    font-family: 'Syne', Arial, sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .card-body {
+    font-size: 0.97rem;
+    line-height: 1.75;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+
+  .card-body p {
+    margin-bottom: 0.85rem;
+  }
+
+  /* Tables */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.2rem 0;
+    font-size: 0.9rem;
+  }
+  .data-table th {
+    background: var(--parchment);
+    font-family: 'Syne', Arial, sans-serif;
+    padding: 0.55rem 1rem;
+    text-align: center;
+    border: 1px solid var(--rule);
+    color: var(--accent);
+    letter-spacing: 0.03em;
+  }
+  .data-table td {
+    padding: 0.45rem 1rem;
+    text-align: center;
+    border: 1px solid var(--rule);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .data-table tr:nth-child(even) td {
+    background: rgba(237,232,220,0.4);
+  }
+  .data-table .row-header {
+    font-style: italic;
+    text-align: left;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--parchment);
+  }
+
+  /* Sub-items */
+  .sub-items {
+    margin-top: 1.2rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 1rem;
+  }
+  .sub-item {
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    margin-bottom: 0.6rem;
+    font-size: 0.93rem;
+    color: var(--muted);
+  }
+  .sub-item .pts {
+    flex-shrink: 0;
+    background: var(--parchment);
+    border: 1px solid var(--rule);
+    padding: 0.1rem 0.45rem;
+    border-radius: 2px;
+    font-size: 0.78rem;
+    color: var(--accent);
+    font-weight: 600;
+    font-family: 'Syne', Arial, sans-serif;
+    white-space: nowrap;
+    margin-top: 0.15rem;
+  }
+
+  /* Download button */
+  .download-wrap {
+    margin-top: 1.4rem;
+    padding-top: 1.2rem;
+    border-top: 1px dashed var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .download-label {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    flex: 1;
+    min-width: 180px;
+  }
+  .btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: transparent;
+    border: 1.5px solid var(--success);
+    color: var(--success);
+    font-family: 'DM Sans', Arial, sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 0.5rem 1.2rem;
+    border-radius: 2px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.18s, color 0.18s, transform 0.1s;
+  }
+  .btn-download:hover {
+    background: var(--success);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  .btn-download svg {
+    width: 15px; height: 15px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* Footer */
+  .exam-footer {
+    max-width: 760px;
+    margin: 2rem auto 0;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--rule);
+    font-style: italic;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 520px) {
+    .ejercicio-card { padding: 1.4rem 1.2rem; }
+    .masthead h1 { font-size: 1.5rem; }
+    .data-table th, .data-table td { padding: 0.35rem 0.5rem; font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <h1>Primer Parcial<br>Inferencia Estadística</h1>
+  <div class="subtitle">Tecnología de Alimentos · Universidad Central de Venezuela</div>
+  <div class="ornament">Examen Individual</div>
+</header>
+
+<!-- START PANEL -->
+<div id="start-panel">
+  <span class="start-icon">🎲</span>
+  <p>Al presionar el botón se te asignará aleatoriamente tu combinación de ejercicios.<br>
+     <strong>Solo podrás hacerlo una vez.</strong> Leé bien antes de comenzar.</p>
+  <button class="btn-sortear" id="btn-sortear" onclick="sortearEjercicio()">
+    Recibir mi examen
+  </button>
+</div>
+
+<!-- EXAM PANEL -->
+<div id="exam-panel">
+  <div class="badge-sorteo">
+    <span id="badge-combo"></span>
+    Tu combinación de ejercicios
+  </div>
+
+  <div class="ejercicio-card" id="card-ej1">
+    <div class="card-label">Ejercicio 1</div>
+    <div class="card-title" id="ej1-title"></div>
+    <div class="card-body" id="ej1-body"></div>
+  </div>
+
+  <div class="ejercicio-card" id="card-ej2">
+    <div class="card-label">Ejercicio 2</div>
+    <div class="card-title" id="ej2-title"></div>
+    <div class="card-body" id="ej2-body"></div>
+    <div class="download-wrap">
+      <div class="download-label">Descargá el archivo de datos Jamovi (.omv) para resolver este ejercicio:</div>
+      <a class="btn-download" id="btn-omv-download" href="#" download="">
+        <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+        Descargar datos (.omv)
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="exam-footer" id="exam-footer" style="display:none">
+  ✦ &nbsp; Completá ambos ejercicios y entregá tu trabajo antes del cierre del parcial &nbsp; ✦
+</div>
+
+<script>
+// ── EXERCISE DATA ──────────────────────────────────────────────
+const EJ1 = {
+  A: {
+    html: `<p>En la evaluación de la calidad de un lote de exportación de cacao en grano, se requiere estimar el contenido de humedad promedio para garantizar que cumple con los estándares internacionales de almacenamiento (máximo 8%).</p>
+<p>El laboratorio de control de calidad selecciona una muestra aleatoria de <em>n</em> = 18 sacos del cargamento y reporta los siguientes estadísticos descriptivos: una media muestral de <em>x̄</em> = 7,42% y una desviación estándar de <em>S</em> = 0,55.</p>
+<p>Tomando en cuenta que el contenido de humedad sigue una distribución aproximadamente normal, calcule e interprete un <strong>intervalo de confianza del 95%</strong> para la media poblacional de humedad de todo el lote de cacao.</p>`
+  },
+  B: {
+    html: `<p>Un consorcio de productores de jugos de frutas cítricas está auditando la conformidad de sus envases de cartón (Tetra Brik) respecto a los microdefectos en la barrera interna de aluminio, lo que podría provocar la oxidación prematura del producto.</p>
+<p>Durante una inspección rutinaria, se extrae una muestra aleatoria de <em>n</em> = 320 envases directamente de la línea de llenado estéril, detectándose que 24 de ellos presentan fallas microscópicas de laminación.</p>
+<p>Construya un <strong>intervalo de confianza del 99%</strong> para la proporción poblacional ϖ de envases con defectos de laminación en la planta. Explique detalladamente el significado práctico del nivel de confianza del 99% en el contexto del riesgo industrial y la seguridad alimentaria.</p>`
+  },
+  C: {
+    html: `<p>Un equipo de I+D busca comparar el efecto de dos métodos de deshidratación (Secado por Aire Caliente vs. Liofilización) sobre la retención de compuestos fenólicos totales (expresados en mg GAE/g) en polvo de arándanos. Por auditorías históricas de esta empresa durante 10 años se conocen las desviaciones poblacionales para cada método.</p>
+<table class="data-table">
+  <thead><tr><th></th><th>Método 1 — Aire Caliente</th><th>Método 2 — Liofilización</th></tr></thead>
+  <tbody>
+    <tr><td class="row-header">x̄</td><td>22,1 mg GAE/g</td><td>26,8 mg GAE/g</td></tr>
+    <tr><td class="row-header">σ</td><td>2,4 mg GAE/g</td><td>1,9 mg GAE/g</td></tr>
+    <tr><td class="row-header">n</td><td>11</td><td>13</td></tr>
+  </tbody>
+</table>
+<p>Elija una herramienta (intervalo de confianza o prueba de hipótesis) y determine si los resultados le permiten encontrar <strong>diferencias significativas</strong> entre ambos métodos.</p>`
+  },
+  D: {
+    html: `<p>Para la validación comercial de un nuevo yogur probiótico con sabor a frutos del bosque, se realiza un estudio de mercado en dos cadenas de supermercados ubicadas en regiones con diferentes perfiles socioeconómicos (Región Este y Región Oeste), evaluando la intención de compra positiva de los consumidores.</p>
+<table class="data-table">
+  <thead><tr><th></th><th>Región Este</th><th>Región Oeste</th></tr></thead>
+  <tbody>
+    <tr><td class="row-header">n</td><td>150</td><td>140</td></tr>
+    <tr><td class="row-header">Intención de compra positiva</td><td>93</td><td>68</td></tr>
+  </tbody>
+</table>
+<p>Elija una herramienta (intervalo de confianza o prueba de hipótesis) y determine si los resultados le permiten encontrar <strong>diferencias significativas</strong> en ambas regiones.</p>`
+  }
+};
+
+const EJ2 = {
+  A: {
+    title: "Resistencia a la tracción en películas biodegradables para envasado de carne",
+    intro: `<p>Un instituto de tecnología de alimentos evalúa la <strong>resistencia a la tracción</strong> (MPa) de películas biodegradables activas para el envasado de carne, comparando una formulación base de almidón de yuca (Formulación A) contra otra adicionada con nanocristales de celulosa (Formulación B). Evalúe si existen diferencias entre la resistencia a la tracción con ambas formulaciones.</p>`,
+    table: `<table class="data-table">
+  <thead><tr><th>Formulación A — Almidón de Yuca</th><th>Formulación B — Nanocristales de Celulosa</th></tr></thead>
+  <tbody>
+    <tr><td>13,8</td><td>18,5</td></tr>
+    <tr><td>12,1</td><td>16,2</td></tr>
+    <tr><td>18,5</td><td>12,5</td></tr>
+    <tr><td>18,5</td><td>17,1</td></tr>
+    <tr><td>16,2</td><td>16,8</td></tr>
+    <tr><td>19,4</td><td>20,5</td></tr>
+    <tr><td>17,1</td><td>17,9</td></tr>
+    <tr><td>11,5</td><td>16,2</td></tr>
+    <tr><td>14,3</td><td>13,0</td></tr>
+    <tr><td>12,7</td><td>17,3</td></tr>
+    <tr><td>13,8</td><td>18,2</td></tr>
+    <tr><td>12,1</td><td>16,5</td></tr>
+  </tbody>
+</table>`,
+    items: [
+      { pts: "1 pt",  text: "Plantee las hipótesis estadísticas a comparar." },
+      { pts: "2 pts", text: "Aplique el procedimiento correcto para detectar si hay diferencias estadísticamente significativas entre las dos formulaciones." },
+      { pts: "2 pts", text: "Explique y evalúe los supuestos que deben cumplirse." },
+      { pts: "2 pts", text: "Interprete el resultado en términos prácticos." }
+    ],
+    omv: "Ejercicio2A.omv",
+    b64: "data:application/octet-stream;base64,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"
+  },
+  B: {
+    title: "Firmeza de la miga en pan de molde libre de gluten",
+    intro: `<p>Un laboratorio de reología en tecnología de alimentos evalúa la <strong>firmeza de la miga</strong> (N) en pan de molde libre de gluten tras 48 horas de almacenamiento. Se compara una formulación control (harina de arroz) contra una variante modificada con Goma Xantana al 1,5% para retener la humedad y mitigar el endurecimiento estructural. Evalúe si existen diferencias entre la firmeza de la miga con ambas formulaciones.</p>`,
+    table: `<table class="data-table">
+  <thead><tr><th>Formulación Control — Arroz</th><th>Formulación Modificada — Xantana</th></tr></thead>
+  <tbody>
+    <tr><td>6,2</td><td>4,1</td></tr>
+    <tr><td>5,8</td><td>3,8</td></tr>
+    <tr><td>6,5</td><td>4,5</td></tr>
+    <tr><td>5,9</td><td>3,9</td></tr>
+    <tr><td>6,1</td><td>4,2</td></tr>
+    <tr><td>5,5</td><td>3,6</td></tr>
+    <tr><td>6,4</td><td>4,8</td></tr>
+    <tr><td>5,7</td><td>4,0</td></tr>
+    <tr><td>6,0</td><td>3,7</td></tr>
+    <tr><td>6,3</td><td>4,3</td></tr>
+    <tr><td>5,6</td><td>3,5</td></tr>
+    <tr><td>6,2</td><td>4,2</td></tr>
+  </tbody>
+</table>`,
+    items: [
+      { pts: "1 pt",  text: "Plantee las hipótesis estadísticas a comparar." },
+      { pts: "2 pts", text: "Aplique el procedimiento correcto para detectar si hay diferencias estadísticamente significativas entre las dos formulaciones." },
+      { pts: "2 pts", text: "Explique y evalúe los supuestos que deben cumplirse." },
+      { pts: "2 pts", text: "Interprete el resultado en términos prácticos." }
+    ],
+    omv: "Ejercicio2B.omv",
+    b64: "data:application/octet-stream;base64,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"
+  }
+};
+
+// ── SORTEO ─────────────────────────────────────────────────────
+let sorted = false;
+
+function sortearEjercicio() {
+  if (sorted) return;
+  sorted = true;
+
+  const btn = document.getElementById('btn-sortear');
+  btn.disabled = true;
+  btn.textContent = 'Ejercicio asignado ✓';
+
+  const keys1 = ['A','B','C','D'];
+  const keys2 = ['A','B'];
+  const k1 = keys1[Math.floor(Math.random() * keys1.length)];
+  const k2 = keys2[Math.floor(Math.random() * keys2.length)];
+
+  const e1 = EJ1[k1];
+  const e2 = EJ2[k2];
+
+  // Badge
+  document.getElementById('badge-combo').textContent = `1${k1} + 2${k2}`;
+
+  // Ejercicio 1
+  document.getElementById('ej1-title').style.display = 'none';
+  const body1 = document.getElementById('ej1-body');
+  const ej1Items = [
+    { pts: "2 pts", text: "Cálculos." },
+    { pts: "2 pts", text: "Interpretación." }
+  ];
+  let html1 = e1.html;
+  html1 += '<div class="sub-items">';
+  ej1Items.forEach(item => {
+    html1 += `<div class="sub-item"><span class="pts">${item.pts}</span><span>${item.text}</span></div>`;
+  });
+  html1 += '</div>';
+  body1.innerHTML = html1;
+
+  // Ejercicio 2
+  document.getElementById('ej2-title').style.display = 'none';
+  const body2 = document.getElementById('ej2-body');
+  let html2 = e2.intro + e2.table;
+  html2 += '<div class="sub-items">';
+  e2.items.forEach(item => {
+    html2 += `<div class="sub-item"><span class="pts">${item.pts}</span><span>${item.text}</span></div>`;
+  });
+  html2 += '</div>';
+  body2.innerHTML = html2;
+
+  // Download link
+  const dlBtn = document.getElementById('btn-omv-download');
+  dlBtn.href = e2.b64;
+  dlBtn.setAttribute('download', e2.omv);
+  dlBtn.querySelector('span') || dlBtn.appendChild(document.createTextNode(''));
+
+  // Show
+  document.getElementById('start-panel').style.display = 'none';
+  const examPanel = document.getElementById('exam-panel');
+  examPanel.style.display = 'block';
+  document.getElementById('exam-footer').style.display = 'block';
+
+  // Scroll
+  setTimeout(() => examPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+</script>
+</body>
+</html>
